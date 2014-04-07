@@ -943,7 +943,8 @@ int CMerkleTx::GetBlocksToMaturity() const
 {
     if (!IsCoinBase())
         return 0;
-    return max(0, (COINBASE_MATURITY+20) - GetDepthInMainChain());
+    //return max(0, (COINBASE_MATURITY+20) - GetDepthInMainChain());
+	return max(0, (2) - GetDepthInMainChain());
 }
 
 
@@ -1119,7 +1120,7 @@ int64 static GetBlockValue(int nBits, int nHeight, int64 nFees)
 }
 
 static const int64 nTargetTimespan = 24 * 60 * 60; // Hashcoin: 1 day
-static const int64 nTargetSpacing = 2.5 * 60; // Hashcoin: 2.5 minutes
+static const int64 nTargetSpacing = 60; // Hashcoin: 60 seconds
 static const int64 nInterval = nTargetTimespan / nTargetSpacing; // 576
 
 //
@@ -1351,7 +1352,7 @@ unsigned int static DarkGravityWave(const CBlockIndex* pindexLast, const CBlockH
 
 unsigned int static GetNextWorkRequired_V2(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
-        static const int64 BlocksTargetSpacing = 2.5 * 60; // 2.5 minutes
+        static const int64 BlocksTargetSpacing = 60; // 60 seconds
         static const unsigned int TimeDaySeconds = 60 * 60 * 24;
         int64 PastSecondsMin = TimeDaySeconds * 0.025;
         int64 PastSecondsMax = TimeDaySeconds * 7;
@@ -2993,7 +2994,7 @@ bool InitBlockIndex() {
         txNew.vin.resize(1);
         txNew.vout.resize(1);
         txNew.vin[0].scriptSig = CScript() << 486604799 << CBigNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
-        txNew.vout[0].nValue = 200 * COIN;
+        txNew.vout[0].nValue = 25 * COIN;
         txNew.vout[0].scriptPubKey = CScript() << ParseHex("0481655046F3EE5D24F65AFABED652F1C6682FAAD1C0221D48C19F8C764BEF056E98537793C5E19CDBAF9E36914C10FECB3E3D13DA0FCC08E24E1EAE68F690B2AC") << OP_CHECKSIG;
         CBlock block;
         block.vtx.push_back(txNew);
