@@ -101,7 +101,7 @@ void Shutdown()
     ShutdownRPCMining();
     if (pwalletMain)
         bitdb.Flush(false);
-	GenerateHashcoins(false, NULL);
+		GenerateHashcoins(false, NULL);
     StopNode();
     {
         LOCK(cs_main);
