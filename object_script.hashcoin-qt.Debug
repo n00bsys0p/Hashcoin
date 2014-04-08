@@ -80,6 +80,7 @@ INPUT(
 ./build\echo.o
 ./build\simd.o
 ./build\checkpointsync.o
+./build\qrcodedialog.o
 ./build\moc_hashcoingui.o
 ./build\moc_transactiontablemodel.o
 ./build\moc_addresstablemodel.o
@@ -117,5 +118,6 @@ INPUT(
 ./build\moc_rpcconsole.o
 ./build\moc_macnotificationhandler.o
 ./build\moc_splashscreen.o
+./build\moc_qrcodedialog.o
 ./build\qrc_hashcoin.o
 );
