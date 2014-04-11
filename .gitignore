@@ -1,7 +1,7 @@
 src/*.exe
-src/hirocoin
-src/hirocoind
-src/test_hirocoin
+src/hashcoin
+src/hashcoind
+src/test_hashcoin
 .*.swp
 *.*~*
 *.bak
@@ -9,17 +9,17 @@ src/test_hirocoin
 *.orig
 *.o
 *.patch
-.hirocoin
+.hashcoin
 
 # Compilation and Qt preprocessor part
 *.qm
 Makefile
-hirocoin-qt
-Hirocoin-Qt.app
+hashcoin-qt
+hashcoin-Qt.app
 
 # Unit-tests
 Makefile.test
-hirocoin-qt_test
+hashcoin-qt_test
 
 # Resources cpp
 qrc_*.cpp
