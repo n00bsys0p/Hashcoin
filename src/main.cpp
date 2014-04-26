@@ -1369,7 +1369,7 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
             if (pindexLast->nHeight+1 >= 5) { DiffMode = 3; }
         }
         else {
-            if (pindexLast->nHeight+1 >= 34140) { DiffMode = 3; }
+            if (pindexLast->nHeight+1 >= 33545) { DiffMode = 3; }
             else if (pindexLast->nHeight+1 >= 15200) { DiffMode = 2; }
         }
 
@@ -2374,7 +2374,7 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
 
 	    #ifdef _WIN32
              // Check proof of work       
-             if(nHeight >= 34140){
+             if(nHeight >= 33545){
                  unsigned int nBitsNext = GetNextWorkRequired(pindexPrev, this);
                  double n1 = ConvertBitsToDouble(nBits);
                  double n2 = ConvertBitsToDouble(nBitsNext);
@@ -2392,7 +2392,7 @@ bool CBlock::AcceptBlock(CValidationState &state, CDiskBlockPos *dbp)
              }
          #else
              // Check proof of work
-             if(nHeight >= 34140 && nHeight <= 45000){
+             if(nHeight >= 33545 && nHeight <= 45000){
                  unsigned int nBitsNext = GetNextWorkRequired(pindexPrev, this);
                  double n1 = ConvertBitsToDouble(nBits);
                  double n2 = ConvertBitsToDouble(nBitsNext);
