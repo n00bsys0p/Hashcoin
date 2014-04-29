@@ -37,6 +37,7 @@
 #include <QToolBar>
 #include <QStatusBar>
 #include <QLabel>
+#include <QFont>
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QStackedWidget>
@@ -80,6 +81,12 @@ HashcoinGUI::HashcoinGUI(QWidget *parent) :
     // Create wallet frame and make it the central widget
     walletFrame = new WalletFrame(this);
     setCentralWidget(walletFrame);
+	
+	//specify a new font.
+    QFont newFont("Arial", 9);
+	
+	//set font of application
+    QApplication::setFont(newFont);
 
     // Accept D&D of URIs
     setAcceptDrops(true);
