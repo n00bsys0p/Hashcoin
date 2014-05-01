@@ -108,6 +108,11 @@
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>Balance:</string>
               </property>
@@ -117,6 +122,7 @@
              <widget class="QLabel" name="labelBalance">
               <property name="font">
                <font>
+                <pointsize>10</pointsize>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -210,11 +216,14 @@
        </item>
        <item>
         <widget class="QLabel" name="coinimage">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="text">
           <string/>
-         </property>
-         <property name="pixmap">
-          <pixmap resource="../hashcoin.qrc">:/icons/hashcoin</pixmap>
          </property>
          <property name="scaledContents">
           <bool>false</bool>
@@ -321,8 +330,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../hashcoin.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

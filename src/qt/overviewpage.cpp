@@ -12,6 +12,8 @@
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
+#include <QMovie>
+#include <QMessageBox>
 
 #define DECORATION_SIZE 64
 #define NUM_ITEMS 3
@@ -103,6 +105,17 @@ OverviewPage::OverviewPage(QWidget *parent) :
     filter(0)
 {
     ui->setupUi(this);
+
+    //Loading the Hashcoin GIF Image for OverviewPage
+    QMovie *movie = new QMovie(":/movies/hashcoingif");
+
+    if(!movie->isValid())
+    {
+        QMessageBox::warning(this,"Error Loading GIF Image","Error GIF Not Found!");
+    }
+
+    ui->coinimage->setMovie(movie);
+    movie->start();
 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
