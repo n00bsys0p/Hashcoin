@@ -13,7 +13,7 @@
   <property name="font">
    <font>
     <family>Arial</family>
-    <pointsize>8</pointsize>
+    <pointsize>9</pointsize>
    </font>
   </property>
   <property name="windowTitle">
@@ -210,11 +210,17 @@
        </item>
        <item>
         <widget class="QLabel" name="coinimage">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="text">
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="../hashcoin.qrc">:/icons/hashcoin</pixmap>
+          <pixmap resource="../hashcoin.qrc">:/icons/hashcoinani</pixmap>
          </property>
          <property name="scaledContents">
           <bool>false</bool>

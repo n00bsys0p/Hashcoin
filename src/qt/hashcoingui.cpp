@@ -84,7 +84,7 @@ HashcoinGUI::HashcoinGUI(QWidget *parent) :
 	
 	//specify a new font.
     QFont newFont("Arial", 9);
-	
+		
 	//set font of application
     QApplication::setFont(newFont);
 
@@ -106,6 +106,7 @@ HashcoinGUI::HashcoinGUI(QWidget *parent) :
 
     // Create status bar
     statusBar();
+
 
     // Status bar notification icons
     QFrame *frameBlocks = new QFrame();
@@ -160,6 +161,10 @@ HashcoinGUI::HashcoinGUI(QWidget *parent) :
 
 HashcoinGUI::~HashcoinGUI()
 {
+	//QLabel *coinimage = new QLabel(this);
+	//QMovie *movie = new QMovie(":/icons/hashcoinani", "gif", this);
+	//coinimage->setMovie (movie);
+	//movie->start ();
     saveWindowGeometry();
     if(trayIcon) // Hide tray icon, as deleting will let it linger until quit (on Ubuntu)
         trayIcon->hide();
@@ -551,6 +556,7 @@ void HashcoinGUI::setNumBlocks(int count, int nTotalBlocks)
             progressBarLabel->setText(tr("No block source available..."));
             break;
     }
+	
 
     QString tooltip;
 
@@ -606,6 +612,7 @@ void HashcoinGUI::setNumBlocks(int count, int nTotalBlocks)
         if(count != prevBlocks)
             syncIconMovie->jumpToNextFrame();
         prevBlocks = count;
+		
 
         walletFrame->showOutOfSyncWarning(true);
 

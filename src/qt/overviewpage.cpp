@@ -12,6 +12,7 @@
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
+#include <QMovie>
 
 #define DECORATION_SIZE 64
 #define NUM_ITEMS 3
@@ -103,6 +104,11 @@ OverviewPage::OverviewPage(QWidget *parent) :
     filter(0)
 {
     ui->setupUi(this);
+	
+	//Loading the Hashcoin GIF Image for OverviewPage
+    QMovie *movie = new QMovie(":/movies/hashcoingif");
+    ui->coinimage->setMovie(movie);
+    movie->start();
 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
