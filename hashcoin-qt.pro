@@ -1,22 +1,26 @@
 TEMPLATE = app
-TARGET = HashCoin-qt
-macx:TARGET = "HashCoin-Qt"
-VERSION = 0.0.1
+TARGET = hashcoin-qt
+macx:TARGET = "Hashcoin-Qt"
+VERSION = 0.8.6.1
 INCLUDEPATH += src src/json src/qt
 QT += core gui network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE USE_IPV6 BOOST_THREAD_PROVIDES_GENERIC_SHARED_MUTEX_ON_WIN __NO_SYSTEM_INCLUDES
+DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 CONFIG += thread
 CONFIG += static
 
-#uncomment the following section to enable building on windows:
-#windows:LIBS += -lshlwapi
-#LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
-#LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
-#windows:LIBS += -lws2_32 -lole32 -loleaut32 -luuid -lgdi32
-#LIBS += -lboost_system-mgw48-mt-s-1_55 -lboost_filesystem-mgw48mt-s-1_55 -lboost_program_options-mgw48-mt-s-1_55 -lboost_thread-mgw48-mt-s-1_55
-BOOST_LIB_SUFFIX=-mgw48-mt-1_55
+# for boost 1.37, add -mt to the boost libraries
+# use: qmake BOOST_LIB_SUFFIX=-mt
+# for boost thread win32 with _win32 sufix
+# use: BOOST_THREAD_LIB_SUFFIX=_win32-...
+# or when linking against a specific BerkelyDB version: BDB_LIB_SUFFIX=-4.8
+
+# Dependency library locations can be customized with:
+#    BOOST_INCLUDE_PATH, BOOST_LIB_PATH, BDB_INCLUDE_PATH,
+#    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
+
+BOOST_LIB_SUFFIX=-mgw48-mt-s-1_55
 BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
 BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
 BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
@@ -58,14 +62,15 @@ QMAKE_CXXFLAGS *= -D_FORTIFY_SOURCE=2
 win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 # on Windows: enable GCC large address aware linker flag
 win32:QMAKE_LFLAGS *= -Wl,--large-address-aware -static
+# i686-w64-mingw32
+win32:QMAKE_LFLAGS *= -static-libgcc -static-libstdc++
 
 # use: qmake "USE_QRCODE=1"
 # libqrencode (http://fukuchi.org/works/qrencode/index.en.html) must be installed for support
 contains(USE_QRCODE, 1) {
     message(Building with QRCode support)
     DEFINES += USE_QRCODE
-	INCLUDEPATH += $$QRCODE_INCLUDE_PATH
-    LIBS += $$join(QRCODE_LIB_PATH,,-L) -lqrencode
+    LIBS += -lqrencode
 }
 
 # use: qmake "USE_UPNP=1" ( enabled by default; default)
@@ -111,6 +116,17 @@ contains(HASHCOIN_NEED_QT_PLUGINS, 1) {
 
 INCLUDEPATH += src/leveldb/include src/leveldb/helpers
 LIBS += $$PWD/src/leveldb/libleveldb.a $$PWD/src/leveldb/libmemenv.a
+!win32 {
+    # we use QMAKE_CXXFLAGS_RELEASE even without RELEASE=1 because we use RELEASE to indicate linking preferences not -O preferences
+    #genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a
+} else {
+    # make an educated guess about what the ranlib command is called
+    isEmpty(QMAKE_RANLIB) {
+        QMAKE_RANLIB = $$replace(QMAKE_STRIP, strip, ranlib)
+    }
+    LIBS += -lshlwapi
+    #genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX TARGET_OS=OS_WINDOWS_CROSSCOMPILE $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libleveldb.a && $$QMAKE_RANLIB $$PWD/src/leveldb/libmemenv.a
+}
 genleveldb.target = $$PWD/src/leveldb/libleveldb.a
 genleveldb.depends = FORCE
 PRE_TARGETDEPS += $$PWD/src/leveldb/libleveldb.a
@@ -137,6 +153,8 @@ HEADERS += src/qt/hashcoingui.h \
     src/qt/addresstablemodel.h \
     src/qt/optionsdialog.h \
     src/qt/sendcoinsdialog.h \
+    src/qt/coincontroldialog.h \
+    src/qt/coincontroltreewidget.h \
     src/qt/addressbookpage.h \
     src/qt/signverifymessagedialog.h \
     src/qt/aboutdialog.h \
@@ -146,15 +164,14 @@ HEADERS += src/qt/hashcoingui.h \
     src/addrman.h \
     src/base58.h \
     src/bignum.h \
-    src/chainparams.h \
     src/checkpoints.h \
+    src/coincontrol.h \
     src/compat.h \
     src/sync.h \
     src/util.h \
     src/hash.h \
     src/uint256.h \
     src/serialize.h \
-    src/core.h \
     src/main.h \
     src/net.h \
     src/key.h \
@@ -213,8 +230,22 @@ HEADERS += src/qt/hashcoingui.h \
     src/leveldb.h \
     src/threadsafety.h \
     src/limitedmap.h \
+    src/qt/macnotificationhandler.h \
     src/qt/splashscreen.h \
-
+    src/hashblock.h \
+    src/sph_blake.h \
+    src/sph_skein.h \
+    src/sph_keccak.h \
+    src/sph_jh.h \
+    src/sph_groestl.h \
+    src/sph_bmw.h \
+    src/sph_types.h \
+    src/sph_luffa.h \
+    src/sph_cubehash.h \
+    src/sph_echo.h \
+    src/sph_shavite.h \
+    src/sph_simd.h \
+    src/sph_types.h 
 
 SOURCES += src/qt/hashcoin.cpp \
     src/qt/hashcoingui.cpp \
@@ -222,13 +253,14 @@ SOURCES += src/qt/hashcoin.cpp \
     src/qt/addresstablemodel.cpp \
     src/qt/optionsdialog.cpp \
     src/qt/sendcoinsdialog.cpp \
+    src/qt/coincontroldialog.cpp \
+    src/qt/coincontroltreewidget.cpp \
     src/qt/addressbookpage.cpp \
     src/qt/signverifymessagedialog.cpp \
     src/qt/aboutdialog.cpp \
     src/qt/editaddressdialog.cpp \
     src/qt/hashcoinaddressvalidator.cpp \
     src/alert.cpp \
-    src/chainparams.cpp \
     src/version.cpp \
     src/sync.cpp \
     src/util.cpp \
@@ -236,7 +268,6 @@ SOURCES += src/qt/hashcoin.cpp \
     src/netbase.cpp \
     src/key.cpp \
     src/script.cpp \
-    src/core.cpp \
     src/main.cpp \
     src/init.cpp \
     src/net.cpp \
@@ -285,11 +316,24 @@ SOURCES += src/qt/hashcoin.cpp \
     src/leveldb.cpp \
     src/txdb.cpp \
     src/qt/splashscreen.cpp \
+    src/blake.c \
+    src/bmw.c \
+    src/groestl.c \
+    src/jh.c \
+    src/keccak.c \
+    src/skein.c \
+    src/luffa.c \
+    src/cubehash.c \
+    src/shavite.c \
+    src/echo.c \
+    src/simd.c \
+    src/checkpointsync.cpp
 
 
 RESOURCES += src/qt/hashcoin.qrc
 
 FORMS += src/qt/forms/sendcoinsdialog.ui \
+    src/qt/forms/coincontroldialog.ui \
     src/qt/forms/addressbookpage.ui \
     src/qt/forms/signverifymessagedialog.ui \
     src/qt/forms/aboutdialog.ui \
@@ -299,8 +343,7 @@ FORMS += src/qt/forms/sendcoinsdialog.ui \
     src/qt/forms/sendcoinsentry.ui \
     src/qt/forms/askpassphrasedialog.ui \
     src/qt/forms/rpcconsole.ui \
-    src/qt/forms/optionsdialog.ui \
-
+    src/qt/forms/optionsdialog.ui
 
 contains(USE_QRCODE, 1) {
 HEADERS += src/qt/qrcodedialog.h
@@ -308,23 +351,13 @@ SOURCES += src/qt/qrcodedialog.cpp
 FORMS += src/qt/forms/qrcodedialog.ui
 }
 
-contains(HASHCOIN_QT_TEST, 1) {
-SOURCES += src/qt/test/test_main.cpp \
-    src/qt/test/uritests.cpp
-HEADERS += src/qt/test/uritests.h
-DEPENDPATH += src/qt/test
-QT += testlib
-TARGET = HashCoin-qt_test
-DEFINES += HASHCOIN_QT_TEST
-  macx: CONFIG -= app_bundle
-}
 
 # Todo: Remove this line when switching to Qt5, as that option was removed
 CODECFORTR = UTF-8
 
 # for lrelease/lupdate
 # also add new translations to src/qt/hashcoin.qrc under translations/
-TRANSLATIONS = $$files(src/qt/locale/hashcoin_*.ts)
+TRANSLATIONS = $$files(src/qt/locale/bitcoin_*.ts)
 
 isEmpty(QMAKE_LRELEASE) {
     win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
@@ -341,14 +374,10 @@ QMAKE_EXTRA_COMPILERS += TSQM
 
 # "Other files" to show in Qt Creator
 OTHER_FILES += README.md \
+    doc/*.rst \
     doc/*.txt \
     doc/*.md \
-    src/hashcoind.cpp \
     src/qt/res/hashcoin-qt.rc \
-    src/test/*.cpp \
-    src/test/*.h \
-    src/qt/test/*.cpp \
-    src/qt/test/*.h
 
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
