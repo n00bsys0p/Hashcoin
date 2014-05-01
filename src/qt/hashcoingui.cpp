@@ -161,10 +161,6 @@ HashcoinGUI::HashcoinGUI(QWidget *parent) :
 
 HashcoinGUI::~HashcoinGUI()
 {
-	//QLabel *coinimage = new QLabel(this);
-	//QMovie *movie = new QMovie(":/icons/hashcoinani", "gif", this);
-	//coinimage->setMovie (movie);
-	//movie->start ();
     saveWindowGeometry();
     if(trayIcon) // Hide tray icon, as deleting will let it linger until quit (on Ubuntu)
         trayIcon->hide();
