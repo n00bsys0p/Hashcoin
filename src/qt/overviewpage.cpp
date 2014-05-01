@@ -105,7 +105,7 @@ OverviewPage::OverviewPage(QWidget *parent) :
 {
     ui->setupUi(this);
 	
-	//Loading the Hashcoin GIF Image for OverviewPage
+	//Loading the Hashcoin GIF Image for OverviewPage GUI
     QMovie *movie = new QMovie(":/movies/hashcoingif");
     ui->coinimage->setMovie(movie);
     movie->start();
