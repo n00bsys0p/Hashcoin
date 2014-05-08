@@ -1350,6 +1350,64 @@ unsigned int static DarkGravityWave(const CBlockIndex* pindexLast, const CBlockH
     return bnNew.GetCompact();
 }
 
+unsigned int static DarkGravityWave3(const CBlockIndex* pindexLast, const CBlockHeader *pblock) {
+     /* current difficulty formula, darkcoin - DarkGravity v3, written by Evan Duffield - evan@darkcoin.io */
+     const CBlockIndex *BlockLastSolved = pindexLast;
+     const CBlockIndex *BlockReading = pindexLast;
+     const CBlockHeader *BlockCreating = pblock;
+     BlockCreating = BlockCreating;
+     int64 nActualTimespan = 0;
+     int64 LastBlockTime = 0;
+     int64 PastBlocksMin = 24;
+     int64 PastBlocksMax = 24;
+     int64 CountBlocks = 0;
+     CBigNum PastDifficultyAverage;
+     CBigNum PastDifficultyAveragePrev;
+ 
+     if (BlockLastSolved == NULL || BlockLastSolved->nHeight == 0 || BlockLastSolved->nHeight < PastBlocksMin) { 
+         return bnProofOfWorkLimit.GetCompact(); 
+     }
+         
+     for (unsigned int i = 1; BlockReading && BlockReading->nHeight > 0; i++) {
+         if (PastBlocksMax > 0 && i > PastBlocksMax) { break; }
+         CountBlocks++;
+ 
+         if(CountBlocks <= PastBlocksMin) {
+             if (CountBlocks == 1) { PastDifficultyAverage.SetCompact(BlockReading->nBits); }
+             else { PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks)+(CBigNum().SetCompact(BlockReading->nBits))) / (CountBlocks+1); }
+             PastDifficultyAveragePrev = PastDifficultyAverage;
+         }
+ 
+         if(LastBlockTime > 0){
+             int64 Diff = (LastBlockTime - BlockReading->GetBlockTime());
+             nActualTimespan += Diff;
+         }
+         LastBlockTime = BlockReading->GetBlockTime();      
+ 
+         if (BlockReading->pprev == NULL) { assert(BlockReading); break; }
+         BlockReading = BlockReading->pprev;
+     }
+     
+     CBigNum bnNew(PastDifficultyAverage);
+ 
+     int64 nTargetTimespan = CountBlocks*nTargetSpacing;
+ 
+     if (nActualTimespan < nTargetTimespan/3)
+         nActualTimespan = nTargetTimespan/3;
+     if (nActualTimespan > nTargetTimespan*3)
+         nActualTimespan = nTargetTimespan*3;
+ 
+    // Retarget
+     bnNew *= nActualTimespan;
+     bnNew /= nTargetTimespan;
+ 
+     if (bnNew > bnProofOfWorkLimit){
+         bnNew = bnProofOfWorkLimit;
+     }
+      
+     return bnNew.GetCompact();
+ }
+
 unsigned int static GetNextWorkRequired_V2(const CBlockIndex* pindexLast, const CBlockHeader *pblock)
 {
         static const int64 BlocksTargetSpacing = 60; // 60 seconds
@@ -1366,17 +1424,19 @@ unsigned int static GetNextWorkRequired(const CBlockIndex* pindexLast, const CBl
 {
         int DiffMode = 1;
         if (fTestNet) {
-            if (pindexLast->nHeight+1 >= 5) { DiffMode = 3; }
+            if (pindexLast->nHeight+1 >= 16) { DiffMode = 4; }
         }
         else {
-            if (pindexLast->nHeight+1 >= 33545) { DiffMode = 3; }
+            if (pindexLast->nHeight+1 >= 68589) { DiffMode = 4; }
+            else if (pindexLast->nHeight+1 >= 33545) { DiffMode = 3; }
             else if (pindexLast->nHeight+1 >= 15200) { DiffMode = 2; }
         }
 
         if (DiffMode == 1) { return GetNextWorkRequired_V1(pindexLast, pblock); }
         else if (DiffMode == 2) { return GetNextWorkRequired_V2(pindexLast, pblock); }
         else if (DiffMode == 3) { return DarkGravityWave(pindexLast, pblock); }
-        return DarkGravityWave(pindexLast, pblock);
+        else if (DiffMode == 4) { return DarkGravityWave3(pindexLast, pblock); }
+        return DarkGravityWave3(pindexLast, pblock);
 }
 
 
